@@ -1,6 +1,8 @@
 ﻿import os
 from pathlib import Path
 
+import pymysql
+
 BASE_DIR =  os.path.dirname(os.path.abspath(__file__))
 
 # 机台数据文件名解析格式 公用
@@ -30,55 +32,28 @@ VIRBATION_RMS_OUTPUT_PATH_NAME = "vibration_rms"
 
 # 负载小于到少判断为主轴未转动
 MIN_VALUE = 0
-# 机台健康度数据保留多少历史数据 单位为分钟
+# 机台健康度数据保留多少历史数据e 单位为分钟
 RMS_RESULT_RANGE = 1440
 
-MACHINE_INFO_DATA_WEBAPI_URL = "http://192.168.15.12/NCWebApi/api/DeviceInfo/ListDeviceWorking"
+MACHINE_INFO_DATA_WEBAPI_URL = "http://192.168.15.90/NCWebApi/api/DeviceInfo/ListDeviceWorking"
 #MACHINE_INFO_DATA_WEBAPI_URL = "http://127.0.0.1:8000/app01/testjson"
 
-# 配置文件1
-MACHINE_SETTINGS1 = [
-    {
-        "MachineData_INPUT_PATH":r"MachineData\0001",
-        "SensorData_INPUT_PATH":r"D:\Intelligent Spindle\DoMeasureExample\Debug\SensorData\192.168.15.6",
-        "ToolInfo_INPUT_PATH": r"usingTool\0001",
-        "SensorData_MOVE_PATH":r"machineTools\0001",
-        "Result_OUPUT_PATH": r"D:\znmx\result\0001",
-        "param": r"0001",
-    },
-]
-MACHINE_SETTINGS = [
-    {
-        "MachineData_INPUT_PATH":r"MachineData\0001",
-        "SensorData_INPUT_PATH":r"D:\Intelligent Spindle\DoMeasureExample\Debug\SensorData\192.168.15.6",
-        "ToolInfo_INPUT_PATH": r"usingTool\0001",
-        "SensorData_MOVE_PATH":r"machineTools\0001",
-        "Result_OUPUT_PATH": r"D:\znmx\result\0001",
-        "param": r"0001",
-    },
-    {
-        "MachineData_INPUT_PATH": r"MachineData\0002",
-        "SensorData_INPUT_PATH": r"D:\Intelligent Spindle\DoMeasureExample\Debug\SensorData\192.168.15.7",
-        "ToolInfo_INPUT_PATH": r"usingTool\0002",
-        "SensorData_MOVE_PATH":r"machineTools\0002",
-        "Result_OUPUT_PATH": r"D:\znmx\result\0002",
-        "param": r"0002",
-    },
-    {
-        "MachineData_INPUT_PATH": r"MachineData\0003",
-        "SensorData_INPUT_PATH": r"D:\Intelligent Spindle\DoMeasureExample\Debug\SensorData\192.168.15.8",
-        "ToolInfo_INPUT_PATH": r"usingTool\0003",
-        "SensorData_MOVE_PATH":r"machineTools\0003",
-        "Result_OUPUT_PATH": r"D:\znmx\result\0003",
-        "param": r"0003",
-    },
-    {
-        "MachineData_INPUT_PATH": r"MachineData\0004",
-        "SensorData_INPUT_PATH": r"D:\Intelligent Spindle\DoMeasureExample\Debug\SensorData\192.168.15.9",
-        "ToolInfo_INPUT_PATH": r"usingTool\0004",
-        "SensorData_MOVE_PATH":r"machineTools\0004",
-        "Result_OUPUT_PATH": r"D:\znmx\result\0004",
-        "param": r"0004",
-    }
-]
+#mysql settings
+mysql_info = {
+    "host" : "192.168.1.127",  # mysql服务端ip
+    "port" : 3306,  # mysql端口
+    "user" : "root",  # mysql 账号
+    "password" : "root",
+    "db" : "znmx",
+    "charset" : "utf8",
+    "cursorclass" : pymysql.cursors.DictCursor
+}
+
+#mangodb settings
+mangodb_info = {
+    "host" : "mongodb://192.168.1.90:27017/",
+    "db_name" : "VibrationData",
+    "tb_name" : "Sensor01",
+    "connect_timeoutMS" : "10000",
+}
 
