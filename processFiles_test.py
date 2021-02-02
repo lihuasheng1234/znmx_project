@@ -141,14 +141,26 @@ class ProcessMachineInfo(threading.Thread):
         super().__init__()
         self.machine_num = machine_num
         self.load_list = []
+        self.ready = False
+
+
+    def setup(self):
+        print("正在准备中。。。")
         self.get_mysql_connect()
-        self.cursor = self.mysql_connect.cursor()
         self.get_signalr_hub()
+        self.ready = True
+
+
+
     def get_signalr_hub(self):
-        self.session = Session()
-        self.connection = Connection("http://202.104.118.59:8070/signalr/", self.session)
-        self.hub = self.connection.register_hub('dashBoardHub')
-        self.connection.start()
+        try:
+            self.session = Session()
+            self.connection = Connection("http://202.104.118.59:8070/signalr/", self.session)
+            self.hub = self.connection.register_hub('dashBoardHub')
+            self.connection.start()
+        except Exception as e:
+            print(e)
+            self.ready = False
 
     @property
     def now(self):
@@ -157,8 +169,10 @@ class ProcessMachineInfo(threading.Thread):
     def get_mysql_connect(self):
         try:
             self.mysql_connect = pymysql.connect(**settings.mysql_info)
+            self.cursor = self.mysql_connect.cursor()
         except Exception as e:
-            print("mysql connect failed")
+            print(e)
+            self.ready = False
 
     def get_machineinfodata_from_database(self):
         """
@@ -189,9 +203,13 @@ class ProcessMachineInfo(threading.Thread):
     def put_to_cloud(self, type, data):
         companyNo = "CMP20210119001"
         deviceNo = '0001'
-        self.hub.server.invoke(type, companyNo, deviceNo,
-                               self.now.strftime(settings.OUTPUT_FILENAME_PATTERN), "data")
-        print("发送%s数据到云端" % data)
+        try:
+            self.hub.server.invoke(type, companyNo, deviceNo,
+                                   self.now.strftime(settings.OUTPUT_FILENAME_PATTERN), "data")
+            print("发送%s数据到云端" % data)
+        except Exception as e:
+            print(e)
+            self.ready = False
 
     def run(self) -> None:
         """
@@ -199,19 +217,21 @@ class ProcessMachineInfo(threading.Thread):
 
         """
         while 1:
-            tool_num, load = self.get_machineinfodata_from_database()
-            self.set_tool_num(tool_num)
-            self.compute_load(load)
-            print("当前加工机台->%s, 当前加工刀具->%s, load:%s"%(self.machine_num, tool_num, load))
-            time.sleep(0.1)
+            self.setup()
+            while self.ready:
+                tool_num, load = self.get_machineinfodata_from_database()
+                self.set_tool_num(tool_num)
+                self.compute_load(load)
+                print("当前加工机台->%s, 当前加工刀具->%s, load:%s"%(self.machine_num, tool_num, load))
+                time.sleep(0.1)
 
 if __name__ == '__main__':
 
 
 
     t = []
-    t.append(ProcessVibData("machine01"))
-    #t.append(ProcessMachineInfo("1"))
+    #t.append(ProcessVibData("machine01"))
+    t.append(ProcessMachineInfo("1"))
     for t1 in t:
         t1.start()
     for t1 in t:
