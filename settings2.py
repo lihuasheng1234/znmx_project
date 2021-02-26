@@ -40,7 +40,17 @@ MACHINE_INFO_DATA_WEBAPI_URL = "http://192.168.15.90/NCWebApi/api/DeviceInfo/Lis
 
 #mysql settings
 mysql_info = {
-    "host" : "192.168.1.127",  # mysql服务端ip
+    "host" : "192.168.1.33",  # mysql服务端ip
+    "port" : 3306,  # mysql端口
+    "user" : "root",  # mysql 账号
+    "password" : "root",
+    "db" : "znmx",
+    "charset" : "utf8",
+    "cursorclass" : pymysql.cursors.DictCursor
+}
+# 刀具健康度mysql
+hp_mysql_info = {
+    "host" : "192.168.1.33",  # mysql服务端ip
     "port" : 3306,  # mysql端口
     "user" : "root",  # mysql 账号
     "password" : "root",
@@ -51,9 +61,13 @@ mysql_info = {
 
 #mangodb settings
 mangodb_info = {
-    "host" : "mongodb://192.168.1.90:27017/",
+    "host" : "mongodb://192.168.1.81:27017/",
     "db_name" : "VibrationData",
     "tb_name" : "Sensor01",
     "connect_timeoutMS" : "10000",
 }
 
+signalr_hub_info = {
+    "url": "http://202.104.118.59:8070/signalr/",
+    "name": "dashBoardHub",
+}

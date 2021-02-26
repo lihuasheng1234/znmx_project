@@ -12,7 +12,7 @@ import numpy as np
 import requests
 import pandas as pd
 
-import settings
+import settings2
 
 
 def keepFileInRange(path, range):
@@ -40,8 +40,8 @@ def machineDataSuperviser(count):
     控制振动数据移动后文件夹下文件数目
     """
     while True:
-        for machine in os.listdir(settings.MACHINE_TOOL_OUTPUT_PATH):
-            machine_path = os.path.join(settings.MACHINE_TOOL_OUTPUT_PATH, machine)
+        for machine in os.listdir(settings2.MACHINE_TOOL_OUTPUT_PATH):
+            machine_path = os.path.join(settings2.MACHINE_TOOL_OUTPUT_PATH, machine)
             for tool in os.listdir(machine_path):
                 tool_path = os.path.join(machine_path, tool)
                 keepFileInRange(tool_path, count)
@@ -80,12 +80,12 @@ def keepRMSData(rms_path, count):
 
 def resultDataSuperviser(count):
     while True:
-        for machine in os.listdir(settings.OUTPUT_BASE_PATH):
-            machine_path = os.path.join(settings.OUTPUT_BASE_PATH, machine)
+        for machine in os.listdir(settings2.OUTPUT_BASE_PATH):
+            machine_path = os.path.join(settings2.OUTPUT_BASE_PATH, machine)
             for dir_name in os.listdir(machine_path):
                 target_path = os.path.join(machine_path, dir_name)
                 # print("检查路径->%s"%target_path)
-                if dir_name == settings.VIRBATION_RMS_OUTPUT_PATH_NAME:
+                if dir_name == settings2.VIRBATION_RMS_OUTPUT_PATH_NAME:
                     continue
                 keepFileInRange(target_path, count)
         time.sleep(count / 4)
@@ -107,9 +107,9 @@ class ProcessFile(threading.Thread):
         self.vibrationData_input_path = vibrationData_input_path
         self.using_tool_input_path = using_tool_input_path
         self.vibrationData_move_path = vibrationData_move_path
-        self.virbation_raw_output_path = os.path.join(result_output_path, settings.VIRBATION_OUTPUT_PATH_NAME)
-        self.load_data_output_path = os.path.join(result_output_path, settings.LOAD_DATA_OUTPUT_PATH_NAME)
-        self.vibration_rms_output_path = os.path.join(result_output_path, settings.VIRBATION_RMS_OUTPUT_PATH_NAME)
+        self.virbation_raw_output_path = os.path.join(result_output_path, settings2.VIRBATION_OUTPUT_PATH_NAME)
+        self.load_data_output_path = os.path.join(result_output_path, settings2.LOAD_DATA_OUTPUT_PATH_NAME)
+        self.vibration_rms_output_path = os.path.join(result_output_path, settings2.VIRBATION_RMS_OUTPUT_PATH_NAME)
         self.old_tool = 0
         self.usingTool = 0
         self.last_trans_time = self.now
@@ -308,7 +308,7 @@ class ProcessFile(threading.Thread):
         """
         data = []
         filenames = os.listdir(self.machineTool_output_path)
-        filenames.sort(key=lambda x: datetime.datetime.strptime(x.split(".")[0], settings.VIBRATION_FILENAME_PATTERN))
+        filenames.sort(key=lambda x: datetime.datetime.strptime(x.split(".")[0], settings2.VIBRATION_FILENAME_PATTERN))
         if len(filenames) < 60:
             print("路径->%s下文件数目不够" % self.machineTool_output_path)
         else:
@@ -340,7 +340,7 @@ class ProcessFile(threading.Thread):
             data = 1/(1+log(data.mean(), 10e12))
             d = dict(data=data)
             # en_json = json.dumps(d, ensure_ascii=True)
-            now_str = self.now.strftime(settings.OUTPUT_FILENAME_PATTERN)
+            now_str = self.now.strftime(settings2.OUTPUT_FILENAME_PATTERN)
             tool_name = str(self.usingTool)
             if len(tool_name) == 1:
                 tool_name = "T0" + tool_name
@@ -358,7 +358,7 @@ class ProcessFile(threading.Thread):
         :return: Json数据文件
         """
         file_list = os.listdir(self.vibrationData_input_path)
-        file_list.sort(key=lambda x: datetime.datetime.strptime(x.split(".")[0], settings.VIBRATION_FILENAME_PATTERN))
+        file_list.sort(key=lambda x: datetime.datetime.strptime(x.split(".")[0], settings2.VIBRATION_FILENAME_PATTERN))
         if file_list:
             data_path = os.path.join(self.vibrationData_input_path, file_list[-1])
             if self.machine_name == "0002":
@@ -371,7 +371,7 @@ class ProcessFile(threading.Thread):
 
                     data = list(map(int, curLine[0:60]))
 
-                    now_str = self.now.strftime(settings.OUTPUT_FILENAME_PATTERN)
+                    now_str = self.now.strftime(settings2.OUTPUT_FILENAME_PATTERN)
                     output_file_name = "%s.json" % now_str
                     file_path = os.path.join(self.virbation_raw_output_path, output_file_name)
                     with open(file_path, 'w') as f:
@@ -391,7 +391,7 @@ class ProcessFile(threading.Thread):
                 print(e)
                 return
             data = np.array(df.iloc[:, 2]).tolist()
-            now_str = self.now.strftime(settings.OUTPUT_FILENAME_PATTERN)
+            now_str = self.now.strftime(settings2.OUTPUT_FILENAME_PATTERN)
             output_file_name = "%s.json" % now_str
             file_path = os.path.join(self.load_data_output_path, output_file_name)
             with open(file_path, 'w') as f:
@@ -426,7 +426,7 @@ class ProcessFile(threading.Thread):
                     first_vib_file = self.findLastAfterTime(last_trans_time_str,
                                                             files_path=self.vibrationData_input_path,
                                                             p1="%Y-%m-%d-%H-%M-%S-%f",
-                                                            p2=settings.VIBRATION_FILENAME_PATTERN)
+                                                            p2=settings2.VIBRATION_FILENAME_PATTERN)
                     last_vib_file = self.findLastBeforTime(now_str, files_path=self.vibrationData_input_path)
                     self.checkPathOrCreate(self.machineTool_output_path)
                     self.last_trans_time = self.now
@@ -441,10 +441,10 @@ class ProcessFile(threading.Thread):
                     first_vib_file = self.findLastAfterTime(last_trans_time_str,
                                                             files_path=self.vibrationData_input_path,
                                                             p1="%Y-%m-%d-%H-%M-%S-%f",
-                                                            p2=settings.VIBRATION_FILENAME_PATTERN)
+                                                            p2=settings2.VIBRATION_FILENAME_PATTERN)
                     last_vib_file = self.findLastBeforTime(now_str, files_path=self.vibrationData_input_path,
                                                            p1="%Y-%m-%d-%H-%M-%S-%f",
-                                                           p2=settings.VIBRATION_FILENAME_PATTERN
+                                                           p2=settings2.VIBRATION_FILENAME_PATTERN
                                                            )
                     self.checkPathOrCreate(self.machineOldTool_output_path)
                     self.last_trans_time = self.now
@@ -456,7 +456,7 @@ if __name__ == '__main__':
     try:
 
         t_list = []
-        for machine in settings.MACHINE_SETTINGS:
+        for machine in settings2.MACHINE_SETTINGS:
             t_list.append(
                 ProcessFile(machine_name=machine["param"], machineInfo_input_path=machine["MachineData_INPUT_PATH"],
                             vibrationData_input_path=machine["SensorData_INPUT_PATH"],
@@ -466,8 +466,8 @@ if __name__ == '__main__':
             t_list.append(
                 threading.Thread(target=machineDataSrcSuperviser, args=(180, machine["MachineData_INPUT_PATH"])))
             t_list.append(threading.Thread(target=keepRMSData, args=(
-            os.path.join(machine["Result_OUPUT_PATH"], settings.VIRBATION_RMS_OUTPUT_PATH_NAME),
-            settings.RMS_RESULT_RANGE)))
+                os.path.join(machine["Result_OUPUT_PATH"], settings2.VIRBATION_RMS_OUTPUT_PATH_NAME),
+                settings2.RMS_RESULT_RANGE)))
         t_list.append(threading.Thread(target=machineDataSuperviser, args=(120,)))
         t_list.append(threading.Thread(target=resultDataSuperviser, args=(120,)))
 
